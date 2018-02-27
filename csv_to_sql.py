@@ -5,8 +5,6 @@ Remember all csv file metadata should be numeric and if text is included, indivi
 
 import pandas as pd
 import os, re
-import numpy as np
-import sqlalchemy as sql
 from sqlalchemy import create_engine
 
 # Create a regex that matches a name pattern with the .csv extension filenames.
@@ -32,11 +30,11 @@ path = os.path.abspath('D:\\aaa\\bbb\\ccc')
 
 for Filename in os.listdir(path):
     file = Pattern1.search(Filename)
-    
+
 # Skip files without the matching pattern.
     if file == None:
         continue
-    
+
     Filename = os.path.join(path, Filename)
     try:
         df = pd.read_csv(Filename, header = 0) #read individual csv files
@@ -46,7 +44,13 @@ for Filename in os.listdir(path):
         df.to_sql(format(file.group(0))[:-4], connection,index=False, if_exists='append') #db file is created in directory of this code
     # some csv files throu 'utf-8' decode error
     except:
+           sql_engine1 = create_engine('sqlite:///ipeds2015_2016_xls.db', echo=False)
+        connection1 = sql_engine1.raw_connection()
         print("error in file {}".format(file.group(0)))
+        df1 = pd.read_csv(Filename, header = 0, encoding ='latin1') #del if error shown
+        csvFilename1.append(df1)
+        print("file saved in dataframe"+" "+format(file.group(0))[:-4])
+        df1.to_sql(format(file.group(0))[:-4], connection1,index=False, if_exists='append')
 
-
-
+connection1.close()
+connection.close()
